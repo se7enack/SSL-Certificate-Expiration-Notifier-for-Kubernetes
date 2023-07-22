@@ -9,3 +9,8 @@ Creates a kube cronjob that goes out to the internet (daily) to check each of yo
 ```sh
 kubectl apply -f ssl-expiration-checker.yaml
 ```
+
+Slack Notification Example:
+<br>
+<img src="https://raw.githubusercontent.com/se7enack/SSL-Certificate-Expiration-Notifier-for-Kubernetes/main/example.png"  width="50%" height="50%">
+
