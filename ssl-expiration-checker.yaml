@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ssl-expiration-checker
+spec:
+  schedule: "@daily"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: ssl-expiration-checker
+            image: curlimages/curl:8.2.0
+            env:
+            - name: check
+              value: "getburke.com github.com google.com"
+            - name: daythreshold
+              value: "45"
+            - name: slackurl
+              value: "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXX"
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - echo "today=\$(date +%Y-%m-%d);months=\"Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec\";x=\$(echo -n \$1' ';curl --insecure -vvI https://\${1} 2>&1 | awk 'BEGIN { cert=0 } /^\* SSL connection/ { cert=1 } /^\*/ { if (cert) print }' | grep expire|awk -F \":\" '{print \$2 \"\" \$4}' | awk '{print \$4\"-\"\$1\"-\"\$2}');month=\$(echo \$x | awk '{print \$2}' | awk -F '-' '{print \$2}');nummonth=\$(string=\"\${months%\$month*}\" && echo -n \"\$((\${#string}/4 + 1))\");entry=\$(echo -n \$x | awk -v ORS=\" \" '{print \$1}'; echo -n \$x | awk '{print \$2}' | awk -v ORS=\"\" -F '-' '{print \$1\"-\"}'; echo -n \$nummonth;echo -n \$x | awk '{print \$2}' | awk -F '-' '{print \"-\"\$3}');entrydate=\$(echo \$entry | awk '{print \$2}');echo \"\$x\";daysleft=\$(echo -n \$(date -d \"\$entrydate\" \+\%s 2>/dev/null) \$(date -d \"\$today\" \+\%s 2>/dev/null) | awk -v ORS=\"\" '{print (\$1 - \$2) / 86400}');if [ \"\$daysleft\" -le \"$daythreshold\" ]; then  curl -X POST --data '{\"text\":\"'\"\${1} is expiring in \${daysleft} days!\"'\"}' $slackurl; fi" > /tmp/expires;chmod +x /tmp/expires;for DOMAIN in [ $check ]; do /tmp/expires $DOMAIN | grep -vE '\]|\[' >> list.txt; done;cat list.txt;rm -rf list.txt 
+          restartPolicy: OnFailure
+ 
