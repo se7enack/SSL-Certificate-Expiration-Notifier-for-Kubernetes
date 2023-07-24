@@ -4,6 +4,8 @@ metadata:
   name: ssl-expiration-checker
 spec:
   schedule: "@daily"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1  
   jobTemplate:
     spec:
       template:
