@@ -12,5 +12,4 @@ kubectl apply -f ssl-expiration-checker.yaml
 
 Slack Notification Example:
 <br>
-<img src="https://raw.githubusercontent.com/se7enack/SSL-Certificate-Expiration-Notifier-for-Kubernetes/main/example.png"  width="50%" height="50%">
-
+<img width="509" alt="example" src="https://github.com/user-attachments/assets/e5f06349-4fd6-44a3-ac78-02012a015e06">
